@@ -1,0 +1,116 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>照片墙一多实例演示（面向对象版）</title>
+<style type="text/css">
+body,div,h2,ul,li{margin:0;padding:0;}
+body{font:12px/1.5 Arail;}
+.box{width:860px;margin:10px auto;background:#eee;border:1px solid #b8b8b8;overflow:hidden;position: relative;}
+.title{height:30px;line-height:30px;font-size:14px;padding:0 15px 0 35px;border-bottom:1px solid #b8b8b8;}
+.title span{float:left;}
+.title a{float:right;color:#06f;outline:none;}
+.title a:hover{color:red;}
+.box ul{float:left;padding:0 15px 15px 0;}
+.box li{float:left;width:140px;height:105px;padding:6px;background:#fff;border:1px solid #c3c3c3;display:inline;margin:15px 0 0 15px;list-style:none;}
+.box li img{float:left;width:140px;height:105px;}
+.box li.hig{padding:5px;border:2px dashed #f30;opacity:0.5;filter:alpha(opacity=50);}
+</style>
+<script type="text/javascript" src="../jquery-1.9.1.js"></script>
+
+</head>
+<body>
+<div class="box">
+    <h2 class="title"><span>一堆90后</span><a href="javascript:;" class="order">随机排序</a></h2>
+    <ul></ul>
+</div>
+<script>
+var 
+oImgArr=[
+	'img/photo/0.jpg',
+	'img/photo/1.jpg',
+	'img/photo/2.jpg',
+	'img/photo/3.jpg',
+	'img/photo/4.jpg',
+	'img/photo/5.jpg',
+	'img/photo/6.jpg',
+	'img/photo/7.jpg',
+	'img/photo/8.jpg',
+	'img/photo/9.jpg'
+],aTmp = [],timer = null;
+function photoWall() {
+	this.init();
+}
+photoWall.prototype = {
+	init: function () {
+		this._createNode();
+		this.getPos();
+		this._initEvent();
+	},
+	_createNode: function () {
+		for (var i = 0; i < oImgArr.length; i +=1) {
+			var oLi = '<li><img src = "'+ oImgArr[i] +'" >';
+			$('.box ul').append(oLi);
+		}
+	},
+	getPos: function () {
+		$('.box').css('height',$('.box').height())
+		$('.box li').each(function (i, item) {
+			var _left = $(item).position().left,
+				_top = $(item).position().top;
+				$(item).css({
+					'left': _left,
+					'top': _top
+				})
+			aTmp.push({X:_left,Y:_top})
+		})
+		$('.box li').each(function (i, item) {
+			$(item).css('position','absolute')
+		})
+	},
+	_initEvent: function () {
+		var self = this;
+		$('.order').on('click',function () {
+			self._changePos();
+		})
+	},
+	_startMove: function (obj,iTargt) {
+		clearInterval(obj[0].timer);
+		console.log(obj.timer);
+		obj[0].timer = setInterval(function () {
+			var speedX = (iTargt.X - obj.position().left) / 5,
+				speedY = (iTargt.Y - obj.position().top) / 5;
+			speedX = speedX > 0 ? Math.ceil(speedX) : Math.floor(speedX);
+			speedY = speedY > 0 ? Math.ceil(speedY) : Math.floor(speedY);
+			if(obj.position().left == iTargt.X && obj.position().top == iTargt.Y){
+				clearInterval(obj.timer);
+			} else {
+
+				obj.css({
+					'left': obj.position().left + speedX,
+					'top': obj.position().top + speedY
+				})
+			}
+		},30)
+		//clearInterval(obj.timer);
+
+	},
+	_changePos:function () {
+		var self = this;
+		aTmp.sort(function (a,b) {
+			return Math.random() > 0.5 ? 1 : -1;
+		})
+
+		$('.box li').each(function (i, item) {
+			self._startMove($(item),aTmp[i]);
+		})
+	}
+}
+new photoWall();
+</script>
+
+
+
+</body>
+</html>
